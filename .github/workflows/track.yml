@@ -2,23 +2,72 @@ name: track-upstream
 on:
   schedule: [{ cron: "0 0 * * *" }]
   workflow_dispatch:
+    inputs:
+      plugin:
+        description: "모드를 바꿀 플러그인 (none이면 추적만 실행)"
+        type: choice
+        default: none
+        options: [none, sfumato, sprezzatura, sinopia, senato]
+      mode:
+        description: "auto = 바로 반영, manual = PR로 승인 후 반영"
+        type: choice
+        default: auto
+        options: [auto, manual]
 permissions:
   contents: write
+  pull-requests: write
 jobs:
-  bump:
+  track:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - env:
           GH_TOKEN: ${{ github.token }}
+          PLUGIN: ${{ inputs.plugin || 'none' }}
+          MODE: ${{ inputs.mode || 'auto' }}
         run: |
+          set -e
           F=.claude-plugin/marketplace.json
-          for repo in $(jq -r '.plugins[] | select(.source.source=="github") | .source.repo' $F); do
-            SHA=$(gh api repos/$repo/commits/HEAD --jq .sha)
-            jq --arg r "$repo" --arg s "$SHA" '(.plugins[] | select(.source.repo==$r) | .source.sha) = $s' $F > tmp && mv tmp $F
-          done
-          git diff --quiet && exit 0
+          T=.claude-plugin/tracking.json
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git commit -am "Track upstream plugins"
-          git push
+
+          if [ "$PLUGIN" != "none" ]; then
+            jq --arg p "$PLUGIN" --arg m "$MODE" '.[$p] = $m' $T > tmp && mv tmp $T
+            if ! git diff --quiet; then
+              git commit -qam "Set $PLUGIN tracking to $MODE"
+              git push -q origin main
+            fi
+          fi
+
+          for name in $(jq -r '.plugins[] | select(.source.source=="github") | .name' $F); do
+            git checkout -q main
+            repo=$(jq -r --arg n "$name" '.plugins[] | select(.name==$n) | .source.repo' $F)
+            cur=$(jq -r --arg n "$name" '.plugins[] | select(.name==$n) | .source.sha' $F)
+            new=$(gh api "repos/$repo/commits/HEAD" --jq .sha)
+            [ "$cur" = "$new" ] && { echo "$name: 최신"; continue; }
+            mode=$(jq -r --arg n "$name" '.[$n] // "manual"' $T)
+            setsha() { jq --arg n "$name" --arg s "$new" '(.plugins[] | select(.name==$n) | .source.sha) = $s' $F > tmp && mv tmp $F; }
+
+            if [ "$mode" = "auto" ]; then
+              setsha
+              git commit -qam "$name -> ${new:0:7} (auto)"
+              git push -q origin main
+              echo "$name: 자동 반영 ${new:0:7}"
+            else
+              br="update/$name"
+              git checkout -q -B "$br" main
+              setsha
+              git commit -qam "$name -> ${new:0:7}"
+              git push -qf origin "$br"
+              title="Update $name to ${new:0:7}"
+              body="Upstream changes: https://github.com/$repo/compare/${cur}...${new}"
+              pr=$(gh pr list --head "$br" --state open --json number --jq '.[0].number // empty')
+              if [ -n "$pr" ]; then
+                gh pr edit "$pr" --title "$title" --body "$body"
+              else
+                gh pr create --base main --head "$br" --title "$title" --body "$body"
+              fi
+              echo "$name: 승인 대기 PR ${new:0:7}"
+            fi
+          done
