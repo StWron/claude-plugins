@@ -24,6 +24,22 @@
         "repo": "Excelsus4/sprezzatura",
         "sha": "156a9fc66adbe8aae2a121c724d0b65982a94138"
       }
+    },
+    {
+      "name": "sinopia",
+      "source": {
+        "source": "github",
+        "repo": "Excelsus4/sinopia",
+        "sha": "94cb4c5c44f925e57ed4a81b87f0f81294af94a2"
+      }
+    },
+    {
+      "name": "senato",
+      "source": {
+        "source": "github",
+        "repo": "Excelsus4/senato",
+        "sha": "e7cfd9c95383c7e3d31ba5e779e0f85c239af587"
+      }
     }
   ]
 }
