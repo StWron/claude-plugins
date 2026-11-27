@@ -40,7 +40,7 @@ jobs:
             fi
           fi
 
-          for name in $(jq -r '.plugins[] | select(.source.source=="github") | .name' $F); do
+          for name in $(jq -r '.plugins[] | select((.source|type)=="object" and .source.source=="github") | .name' $F); do
             git checkout -q main
             repo=$(jq -r --arg n "$name" '.plugins[] | select(.name==$n) | .source.repo' $F)
             cur=$(jq -r --arg n "$name" '.plugins[] | select(.name==$n) | .source.sha' $F)
