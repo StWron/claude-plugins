@@ -43,12 +43,20 @@
     },
     {
       "name": "memory-curator",
-      "source": "./plugins/memory-curator",
+      "source": {
+        "source": "github",
+        "repo": "StWron/memory-curator",
+        "sha": "ec3828f5ae73a03d153e585e261abb55f62525f7"
+      },
       "description": "메모리와 하네스를 주기적으로 정제·재편·블라인드 검증하는 스킬. 2단계(체계 재편)는 sfumato 플러그인(Excelsus4/sfumato) 필요"
     },
     {
       "name": "sci-calc",
-      "source": "./plugins/sci-calc",
+      "source": {
+        "source": "github",
+        "repo": "StWron/sci-calc",
+        "sha": "cf086171c573ab0824b96ce07c0353b8ccade119"
+      },
       "description": "열역학·유체·연소·단위 계산을 실제 물성 라이브러리로 수행하는 스킬"
     }
   ]
