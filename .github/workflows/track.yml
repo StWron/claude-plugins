@@ -7,7 +7,7 @@ on:
         description: "모드를 바꿀 플러그인 (none이면 추적만 실행)"
         type: choice
         default: none
-        options: [none, sfumato, sprezzatura, sinopia, senato]
+        options: [none, sfumato, sprezzatura, sinopia, senato, memory-curator, sci-calc]
       mode:
         description: "auto = 바로 반영, manual = PR로 승인 후 반영"
         type: choice
