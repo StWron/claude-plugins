@@ -2,5 +2,7 @@
   "sfumato": "auto",
   "sprezzatura": "auto",
   "sinopia": "auto",
-  "senato": "manual"
+  "senato": "manual",
+  "memory-curator": "auto",
+  "sci-calc": "auto"
 }
