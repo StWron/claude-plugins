@@ -16,6 +16,14 @@
         "./skill/sfumato"
       ],
       "commands": "./commands"
+    },
+    {
+      "name": "sprezzatura",
+      "source": {
+        "source": "github",
+        "repo": "Excelsus4/sprezzatura",
+        "sha": "156a9fc66adbe8aae2a121c724d0b65982a94138"
+      }
     }
   ]
 }
