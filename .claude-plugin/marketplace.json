@@ -1,0 +1,21 @@
+{
+  "name": "my-plugins",
+  "owner": {
+    "name": "StWron"
+  },
+  "plugins": [
+    {
+      "name": "sfumato",
+      "source": {
+        "source": "github",
+        "repo": "Excelsus4/sfumato",
+        "sha": "ee5894d5f1afcbc257c80e25a09d77c823137fbb"
+      },
+      "strict": false,
+      "skills": [
+        "./skill/sfumato"
+      ],
+      "commands": "./commands"
+    }
+  ]
+}
