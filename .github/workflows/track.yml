@@ -12,11 +12,13 @@ jobs:
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          SHA=$(gh api repos/Excelsus4/sfumato/commits/main --jq .sha)
           F=.claude-plugin/marketplace.json
-          jq --arg s "$SHA" '(.plugins[] | select(.name=="sfumato") | .source.sha) = $s' $F > tmp && mv tmp $F
+          for repo in $(jq -r '.plugins[] | select(.source.source=="github") | .source.repo' $F); do
+            SHA=$(gh api repos/$repo/commits/HEAD --jq .sha)
+            jq --arg r "$repo" --arg s "$SHA" '(.plugins[] | select(.source.repo==$r) | .source.sha) = $s' $F > tmp && mv tmp $F
+          done
           git diff --quiet && exit 0
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git commit -am "sfumato -> ${SHA:0:7}"
+          git commit -am "Track upstream plugins"
           git push
